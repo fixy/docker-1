@@ -23,7 +23,7 @@ RUN apt-get clean && apt-get update && apt-get install -y locales && \
     add-apt-repository universe && \
     apt-get update -y && \
     
-    apt-get install -y xterm pulseaudio cups curl \
+    apt-get install -y xterm pulseaudio cups curl default-jre icedtea-netx \
     libgconf2-4 iputils-ping libnss3-1d libxss1 wget xdg-utils libpango1.0-0 fonts-liberation \
     mate-desktop-environment-extras firefox htop nano git vim && \
     
