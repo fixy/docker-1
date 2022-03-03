@@ -7,6 +7,7 @@ FROM opensciencegrid/osg-wn:3.5-el8
 # - 2022-Feb-09: Removed compat-libstdc++-33, coreutils
 # - 2022-Mar-02: Add bind-utils and openssl-libs packages
 # - 2022-Mar-02: Add compat-openssl10 (needed for CMS pilots in EL8)
+# - 2022-Mar-03: Install python2 and symlink (CMS SAM depends on python2)
 #
 # Required
 # --------
@@ -45,9 +46,12 @@ RUN yum -y install cvmfs \
                    libXpm-devel libXext-devel mesa-libGLU-devel perl-Switch \
                    perl-Storable perl-Env perl-Thread-Queue perl-Encode nspr \
                    nss nss-util file file-libs readline zlib popt bzip2 \
-                   bzip2-libs bind-utils openssl-libs compat-openssl10 && \
+                   bzip2-libs bind-utils openssl-libs compat-openssl10 python2 && \
     yum clean all && \
     rm -rf /var/cache/yum
+
+
+RUN ln -s /usr/bin/python2 /usr/bin/python
 
 # Create condor user and group
 RUN groupadd -r condor && \
