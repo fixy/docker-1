@@ -8,6 +8,8 @@ FROM opensciencegrid/osg-wn:3.5-el8
 # - 2022-Mar-02: Add bind-utils and openssl-libs packages
 # - 2022-Mar-02: Add compat-openssl10 (needed for CMS pilots in EL8)
 # - 2022-Mar-03: Install python2 and symlink (CMS SAM depends on python2)
+#                Move python symlink at the end (yum update install python3 and removes symlink)
+#                See https://developers.redhat.com/blog/2019/05/07/what-no-python-in-red-hat-enterprise-linux-8
 #
 # Required
 # --------
@@ -50,9 +52,6 @@ RUN yum -y install cvmfs \
     yum clean all && \
     rm -rf /var/cache/yum
 
-
-RUN ln -s /usr/bin/python2 /usr/bin/python
-
 # Create condor user and group
 RUN groupadd -r condor && \
     useradd -r -g condor -d /var/lib/condor -s /sbin/nologin condor
@@ -70,3 +69,5 @@ RUN perl -pi -e 's/^enable overlay =.*/enable overlay = no/g' /etc/singularity/s
 RUN yum update -y && \
     yum clean all && \
     rm -rf /var/cache/yum
+
+RUN ln -s /usr/bin/python2 /usr/bin/python
