@@ -10,7 +10,6 @@ FROM opensciencegrid/osg-wn:3.5-el8
 # - 2022-Mar-03: Install python2 and symlink (CMS SAM depends on python2)
 #                Move python symlink at the end (yum update install python3 and removes symlink)
 #                See https://developers.redhat.com/blog/2019/05/07/what-no-python-in-red-hat-enterprise-linux-8
-#
 # Required
 # --------
 # - cmsRun fails without stdint.h (from glibc-headers)
@@ -51,6 +50,7 @@ RUN yum -y install cvmfs \
                    bzip2-libs bind-utils openssl-libs compat-openssl10 python2 && \
     yum clean all && \
     rm -rf /var/cache/yum
+
 
 # Create condor user and group
 RUN groupadd -r condor && \
