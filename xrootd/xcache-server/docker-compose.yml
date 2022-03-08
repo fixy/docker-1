@@ -1,0 +1,19 @@
+services:
+  xcache-server:
+    image: ${SWARM}/xcache-server:latest
+    network_mode: host
+    pid: host
+    environment:
+    - X509_USER_PROXY=/etc/grid-security/x509
+    volumes:
+    - ./config/${HOSTNAME}/etc/xrootd/xrootd.cfg:/etc/xrootd/xrootd.cfg:ro
+    - ./config/${HOSTNAME}/etc/xrootd/lcmaps.db:/etc/xrootd/lcmaps.cfg:ro
+    - ./config/${HOSTNAME}/etc/xrootd/auth_file:/etc/xrootd/auth_file:ro
+    - ./config/${HOSTNAME}/etc/supervisord.d/10-xrootd.conf:/etc/supervisord.d/10-xrootd.conf:ro
+    - /etc/grid-security:/etc/grid-security:ro
+    - /xcache-meta:/xcache-meta:rw
+    - /xcache-root:/xcache-root:rw
+    - /xcache-run:/xcache-run:rw
+    - /etc/passwd:/etc/passwd:ro
+    - /etc/group:/etc/group:ro
+version: '2.4'
