@@ -1,6 +1,0 @@
-# pip3 packages
-pyyaml
-psutil
-
-# yum packages
-python3-devel # needed for psutil
