@@ -1,2 +1,2 @@
-python3 add_volumes.py
+python3 nodeScan.py
 docker-compose up --detach
