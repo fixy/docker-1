@@ -11,7 +11,6 @@ compContent = {}
 
 with open(compFile, 'r') as fd:
     compContent = yaml.safe_load(fd)
-print(compContent)
 
 newVolumes = []
 volumes = []
@@ -26,23 +25,25 @@ for item in blockdevices.get('blockdevices', []):
     for chitem in item.get('children', []):
         if chitem['mountpoint'] and chitem['mountpoint'].startswith('/data'):
            newVolumes.append("%s:%s:rw" % (chitem['mountpoint'], chitem['mountpoint']))
-           volumes.append('oss.space data %s/xcache' % chitem['mountpoint'])
+           volumes.append(chitem['mountpoint'])
 
 compContent['services']['xcache-server']['volumes'] = newVolumes
 with open(compFile, 'w') as fd:
     yaml.dump(compContent, fd)
 
 xdir = './config/%s/etc/xrootd/config.d' % socket.gethostname().split('.', 1)[0]
-try:
-    os.mkdir(xdir)
-except FileExistsError:
-    pass
+os.makedirs(xdir, exist_ok=True)
+
 with open('%s/90-custom.cfg' % xdir, 'w') as fd:
     fd.write('='*40 + '\n')
     fd.write('AUTO DISKS CONFIGURED BY SCRIPT\n')
     fd.write('='*40 + '\n\n')
     for item in volumes:
-        fd.write(item + '\n')
+        if not os.path.isdir('%s/xcache' % item):
+            print('Disk %s is ignored as it does not have xcache directory inside' % item)
+            continue
+        # oss.space data %s/xcache
+        fd.write("oss.space data %s/xcache\n" % item)
     fd.write('\n\n')
     fd.write('='*40 + '\n')
     fd.write('AUTO MEMORY FOR XROOTD. 70% of all available mem\n')
