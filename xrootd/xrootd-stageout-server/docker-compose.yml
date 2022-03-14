@@ -1,6 +1,6 @@
 services:
-  xrootd-clustered-server:
-    image: ${SWARM}/xrootd-clustered-server:latest
+  xrootd-stageout-server:
+    image: ${SWARM}/xrootd-stageout-server:latest
     network_mode: host
     environment:
     - X509_USER_PROXY=/etc/grid-security/x509
@@ -15,5 +15,5 @@ services:
     - /etc/grid-security:/etc/grid-security:ro
     - /etc/passwd:/etc/passwd:ro
     - /etc/group:/etc/group:ro
-    - /storage/cms/:/storage/cms:ro
+    - /storage/cms/:/storage/cms:rw
 version: '2.4'
