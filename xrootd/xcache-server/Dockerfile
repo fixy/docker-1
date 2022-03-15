@@ -14,4 +14,7 @@ RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 RUN yum -y install xrootd xrootd-client xrootd-client-devel xrootd-client-libs \
                    xrootd-devel xrootd-fuse xrootd-libs xrootd-private-devel \
                    xrootd-server xrootd-server-devel xrootd-server-libs xrootd-selinux \
-                   xrootd-doc xrootd-lcmaps --disablerepo=osg-upcoming
+                   xrootd-doc xrootd-lcmaps --enablerepo=osg-upcoming
+
+RUN yum -y install xrootd-scitokens
+RUN yum -y --disablerepo=* --enablerepo=epel update scitokens-cpp
