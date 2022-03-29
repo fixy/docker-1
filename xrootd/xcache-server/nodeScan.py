@@ -12,22 +12,24 @@ compContent = {}
 with open(compFile, 'r') as fd:
     compContent = yaml.safe_load(fd)
 
-newVolumes = []
-volumes = []
-for item in compContent['services']['xcache-server']['volumes']:
-    if not item.startswith('/data'):
-        newVolumes.append(item)
-
-
 process = subprocess.run("lsblk --json -o NAME,MOUNTPOINT".split(), stdout=subprocess.PIPE)
 blockdevices = json.loads(process.stdout)
-for item in blockdevices.get('blockdevices', []):
-    for chitem in item.get('children', []):
-        if chitem['mountpoint'] and chitem['mountpoint'].startswith('/data'):
-           newVolumes.append("%s:%s:rw" % (chitem['mountpoint'], chitem['mountpoint']))
-           volumes.append(chitem['mountpoint'])
 
-compContent['services']['xcache-server']['volumes'] = newVolumes
+for service in compContent['services'].keys():
+    newVolumes = []
+    volumes = []
+    for item in compContent['services'][service]['volumes']:
+        if not item.startswith('/data'):
+            newVolumes.append(item)
+
+    for item in blockdevices.get('blockdevices', []):
+        for chitem in item.get('children', []):
+            if chitem['mountpoint'] and chitem['mountpoint'].startswith('/data'):
+                newVolumes.append("%s:%s:rw" % (chitem['mountpoint'], chitem['mountpoint']))
+                volumes.append(chitem['mountpoint'])
+
+    compContent['services'][service]['volumes'] = newVolumes
+
 with open(compFile, 'w') as fd:
     yaml.dump(compContent, fd)
 
