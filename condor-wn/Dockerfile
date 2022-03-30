@@ -10,7 +10,9 @@ FROM opensciencegrid/osg-wn:3.5-el8
 # - 2022-Mar-03: Install python2 and symlink (CMS SAM depends on python2)
 #                Move python symlink at the end (yum update install python3 and removes symlink)
 #                See https://developers.redhat.com/blog/2019/05/07/what-no-python-in-red-hat-enterprise-linux-8
-# - 2022-Mar-30: added diagnostics packages iputils (ping, ping6), iproute (ip, ss). 
+# - 2022-Mar-30: added diagnostics packages iputils (ping, ping6), iproute (ip, ss).
+# - 2022-Mar-30: Enable osg-upcoming. it was modified to include gfal2 >=2.20 and by default
+#                osg-upcoming disabled due to xrootd. Should be gone after move to OSG 3.6
 # Required
 # --------
 # - cmsRun fails without stdint.h (from glibc-headers)
@@ -66,6 +68,10 @@ RUN yum -y distro-sync --enablerepo=epel-testing singularity && \
 # Disable overlay and privileged mode
 RUN perl -pi -e 's/^enable overlay =.*/enable overlay = no/g' /etc/singularity/singularity.conf && \
     perl -pi -e 's/^allow setuid =.*/allow setuid = no/g'     /etc/singularity/singularity.conf
+
+# 2022-Mar-30: Enable osg-upcoming. it was modified to include gfal2 >=2.20 and by default
+# osg-upcoming disabled due to xrootd. Should be gone after move to OSG 3.6
+RUN yum-config-manager --enable osg-upcoming;
 
 # yum update
 RUN yum update -y && \
