@@ -10,6 +10,7 @@ FROM opensciencegrid/osg-wn:3.5-el8
 # - 2022-Mar-03: Install python2 and symlink (CMS SAM depends on python2)
 #                Move python symlink at the end (yum update install python3 and removes symlink)
 #                See https://developers.redhat.com/blog/2019/05/07/what-no-python-in-red-hat-enterprise-linux-8
+# - 2022-Mar-30: added diagnostics packages iputils (ping, ping6), iproute (ip, ss). 
 # Required
 # --------
 # - cmsRun fails without stdint.h (from glibc-headers)
@@ -48,6 +49,7 @@ RUN yum -y install cvmfs \
                    perl-Storable perl-Env perl-Thread-Queue perl-Encode nspr \
                    nss nss-util file file-libs readline zlib popt bzip2 \
                    bzip2-libs bind-utils openssl-libs compat-openssl10 python2 && \
+    yum -y install iputils iproute && \
     yum clean all && \
     rm -rf /var/cache/yum
 
