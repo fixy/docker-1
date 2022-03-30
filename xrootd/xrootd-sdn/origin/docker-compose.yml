@@ -1,5 +1,5 @@
 services:
-  xrootd-clustered-server-0:
+  xrootd-sdn-origin-0:
     image: ${SWARM}/xrootd-stageout-server:latest
     network_mode: host
     environment:
@@ -27,7 +27,7 @@ services:
     - CAP_SETUID
     - CAP_SETGID
     - CAP_DAC_OVERRIDE
-  xrootd-clustered-server-1:
+  xrootd-sdn-origin-1:
     image: ${SWARM}/xrootd-stageout-server:latest
     network_mode: host
     environment:
@@ -55,7 +55,7 @@ services:
     - CAP_SETUID
     - CAP_SETGID
     - CAP_DAC_OVERRIDE
-  xrootd-clustered-server-2:
+  xrootd-sdn-origin-2:
     image: ${SWARM}/xrootd-stageout-server:latest
     network_mode: host
     environment:
