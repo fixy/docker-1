@@ -1,5 +1,5 @@
 source ../../../environment
-for id in `docker ps -a | grep $SWARM/xrootd-sdn-origin | awk '{print $1}'`;
+for id in `docker ps -a | grep $SWARM/xrootd-stageout-server | awk '{print $1}'`;
 do
   docker stop $id;
   docker rm $id;

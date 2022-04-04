@@ -1,14 +1,7 @@
 services:
   xrootd-sdn-origin-1:
     image: ${SWARM}/xrootd-stageout-server:latest
-    ports:
-    - "[2605:d9c0:2:fff1::2]:1094:1094"
-    network_mode: bridge
-    dns:
-    - 8.8.8.8
-    - 4.4.4.4
-    - 2001:4860:4860::8888
-    - 2001:4860:4860::8844
+    network_mode: host
     hostname: sense-origin-01.ultralight.org
     environment:
     - X509_USER_PROXY=/etc/grid-security/x509
@@ -39,19 +32,14 @@ services:
     - CAP_DAC_OVERRIDE
   xrootd-sdn-origin-2:
     image: ${SWARM}/xrootd-stageout-server:latest
-    ports:
-    - "[2605:d9c0:2:fff2::2]:1094:1094"
-    network_mode: bridge
-    dns:
-    - 8.8.8.8
-    - 4.4.4.4
+    network_mode: host
     hostname: sense-origin-02.ultralight.org
     environment:
     - X509_USER_PROXY=/etc/grid-security/x509
     - XRD_CERT=/etc/grid-security/xrootd/sense-origin-02/cert.pem
     - XRD_KEY=/etc/grid-security/xrootd/sense-origin-02/key.pem
     - XRD_REDIR=sense-redir-02.ultralight.org
-    - XRD_PORT=1094
+    - XRD_PORT=1095
     - XRD_MNG_PORT=1214
     - LOCAL_ROOT=/storage/cms
     - SITENAME=T2_US_Caltech_SDN
@@ -75,19 +63,14 @@ services:
     - CAP_DAC_OVERRIDE
   xrootd-sdn-origin-3:
     image: ${SWARM}/xrootd-stageout-server:latest
-    ports:
-    - "[2605:d9c0:2:fff3::2]:1094:1094"
-    network_mode: bridge
-    dns:
-    - 8.8.8.8
-    - 4.4.4.4
+    network_mode: host
     hostname: sense-origin-03.ultralight.org
     environment:
     - X509_USER_PROXY=/etc/grid-security/x509
     - XRD_CERT=/etc/grid-security/xrootd/sense-origin-03/cert.pem
     - XRD_KEY=/etc/grid-security/xrootd/sense-origin-03/key.pem
     - XRD_REDIR=sense-redir-03.ultralight.org
-    - XRD_PORT=1094
+    - XRD_PORT=1096
     - XRD_MNG_PORT=1215
     - LOCAL_ROOT=/storage/cms
     - SITENAME=T2_US_Caltech_SDN
