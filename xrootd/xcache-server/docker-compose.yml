@@ -18,6 +18,7 @@ services:
     - /xcache-run:/xcache-run:rw
     - /etc/passwd:/etc/passwd:ro
     - /etc/group:/etc/group:ro
+    - /cvmfs/:/cvmfs:ro
   xrootd-clustered-server:
     environment:
     - X509_USER_PROXY=/etc/grid-security/x509

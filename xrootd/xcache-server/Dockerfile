@@ -18,3 +18,8 @@ RUN yum -y install xrootd xrootd-client xrootd-client-devel xrootd-client-libs \
 
 RUN yum -y install xrootd-scitokens
 RUN yum -y --disablerepo=* --enablerepo=epel update scitokens-cpp
+
+# XCache Rucio reporter. Installing it manually
+RUN yum -y install git procps-ng
+RUN cd /opt && git clone https://github.com/juztas/xcache
+
