@@ -1,0 +1,6 @@
+services:
+  dhcp-sdn:
+    image: ${SWARM}/dhcp-sdn:latest
+    network_mode: host
+    volumes:
+    - ./conf/etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf:ro
