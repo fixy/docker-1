@@ -29,3 +29,6 @@ u dteam /store/user/dteam a
 # home directories - the underlying filesystem also has its internal permissions and will further
 # limit things.
 g /cms /store/user a /store/temp/ a /store/group a readcmsdata
+
+# Allow cmsuser all permissions to /store # Rucio Sense development
+u cmsuser /store/ a
