@@ -2,6 +2,7 @@ services:
   xrootd-clustered-server:
     image: ${SWARM}/xrootd-clustered-server:latest
     network_mode: host
+    restart: unless-stopped
     environment:
     - X509_USER_PROXY=/etc/grid-security/x509
     - XRD_REDIR=xrootd-redir.ultralight.org

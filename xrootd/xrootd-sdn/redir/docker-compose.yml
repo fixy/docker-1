@@ -2,6 +2,7 @@ services:
   xrootd-sdn-redir-1:
     image: ${SWARM}/xrootd-stageout-server:latest
     network_mode: host
+    restart: unless-stopped
     hostname: sense-redir-01.ultralight.org
     environment:
     - X509_USER_PROXY=/etc/grid-security/x509

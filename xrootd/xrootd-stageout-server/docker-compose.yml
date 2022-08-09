@@ -2,6 +2,7 @@ services:
   xrootd-stageout-server:
     image: ${SWARM}/xrootd-stageout-server:latest
     network_mode: host
+    restart: unless-stopped
     environment:
     - X509_USER_PROXY=/etc/grid-security/x509
     volumes:

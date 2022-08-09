@@ -4,6 +4,7 @@ services:
     - X509_USER_PROXY=/etc/grid-security/x509
     image: ${SWARM}/xcache-server:latest
     network_mode: host
+    restart: unless-stopped
     volumes:
     - ./config/default/etc/xrootd/xrootd.cfg:/etc/xrootd/xrootd.cfg:ro
     - ./config/default/etc/xrootd/lcmaps.db:/etc/xrootd/lcmaps.cfg:ro
