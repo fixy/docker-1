@@ -1,0 +1,8 @@
+{
+   "remotes" : [
+      {
+         "url" : "http://monipe-central.rnp.br:8000/pub/config/autogole",
+         "configure-archives" : true
+      }
+   ]
+}
