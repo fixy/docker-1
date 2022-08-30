@@ -1,10 +1,14 @@
 version: '3.8'
 services:
   testpoint:
-    image: perfsonar/testpoint:latest
+    image: perfsonar/testpoint:systemd
     network_mode: "host"
     restart: on-failure
+    tmpfs: 
+      - /run
+      - /tmp
     volumes:
-       - ./config/psconfig:/etc/perfsonar/psconfig
-       - ./config/etc/httpd/conf/httpd.conf:/etc/httpd/conf/httpd.conf
-       - ./config/etc/httpd/conf.d/ssl.conf:/etc/httpd/conf.d/ssl.conf
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./config/psconfig:/etc/perfsonar/psconfig
+      - ./config/etc/httpd/conf/httpd.conf:/etc/httpd/conf/httpd.conf
+      - ./config/etc/httpd/conf.d/ssl.conf:/etc/httpd/conf.d/ssl.conf
