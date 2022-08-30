@@ -9,6 +9,7 @@ services:
       - /tmp
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      - ./config/psconfig:/etc/perfsonar/psconfig
+      - ./config/psconfig/pscheduler-agent-logger.conf:/etc/perfsonar/psconfig/pscheduler-agent-logger.conf
+      - ./config/psconfig/pscheduler-agent.json:/etc/perfsonar/psconfig/pscheduler-agent.json
       - ./config/etc/httpd/conf/httpd.conf:/etc/httpd/conf/httpd.conf
       - ./config/etc/httpd/conf.d/ssl.conf:/etc/httpd/conf.d/ssl.conf
