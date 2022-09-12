@@ -32,3 +32,4 @@ g /cms /store/user a /store/temp/ a /store/group a readcmsdata
 
 # Allow cmsuser all permissions to /store # Rucio Sense development
 u cmsuser /store/ a
+u jbalcas /store/ a
