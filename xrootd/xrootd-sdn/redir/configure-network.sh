@@ -1,6 +1,9 @@
 
 # Disable autoconf.
 sysctl -w net.ipv6.conf.default.autoconf=0
+sysctl -w net.ipv6.conf.all.forwarding=1
+sysctl -w net.ipv6.conf.default.accept_redirects=1
+sysctl -w net.ipv6.conf.default.forwarding=1
 
 # 2605:d9c0:2:fff0::f/64
 export ID=0
