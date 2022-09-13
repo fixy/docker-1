@@ -4,5 +4,6 @@
          "url" : "http://monipe-central.rnp.br:8002/autogole.json",
          "configure-archives" : true
       }
-   ]
+   ],
+   "pscheduler-assist-server": "localhost:2443"
 }
