@@ -1,0 +1,12 @@
+services:
+  xrootd-monitoring-shoveler:
+    image: xrootd-monitoring-shoveler
+    network_mode: host
+    restart: unless-stopped
+    environment:
+    - AMQP_URL=amqps://clever-turkey.rmq.cloudamqp.com/xrd-mon
+    volumes:
+    - /etc/xrootd-monitoring-shoveler/token:/etc/xrootd-monitoring-shoveler/token:ro
+    build:
+      context: .
+
