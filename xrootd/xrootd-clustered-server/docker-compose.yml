@@ -12,6 +12,7 @@ services:
     - LOCAL_ROOT=/storage/cms
     - SITENAME=T2_US_Caltech
     volumes:
+    - ./config/${HOSTNAME}/etc/t2_maitenance.conf:/etc/t2_maitenance.conf:ro
     - ./config/default/etc/xrootd/scitokens.cfg:/etc/xrootd/scitokens.cfg:ro
     - ./config/default/etc/xrootd/lcmaps.db:/etc/xrootd/lcmaps.cfg:ro
     - /etc/xrootd/macaroon-secret:/etc/xrootd/macaroon-secret:ro
