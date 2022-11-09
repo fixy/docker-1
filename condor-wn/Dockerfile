@@ -1,4 +1,4 @@
-FROM opensciencegrid/osg-wn:3.5-el8
+FROM opensciencegrid/osg-wn:3.6-el8
 # Notes:
 # Cloned from Nebraska folks: https://github.com/unlhcc/docker-osg-wn-el7
 #
@@ -13,6 +13,8 @@ FROM opensciencegrid/osg-wn:3.5-el8
 # - 2022-Mar-30: added diagnostics packages iputils (ping, ping6), iproute (ip, ss).
 # - 2022-Mar-30: Enable osg-upcoming. it was modified to include gfal2 >=2.20 and by default
 #                osg-upcoming disabled due to xrootd. Should be gone after move to OSG 3.6
+# - 2022-Oct-27: Singularity renamed to apptainer. Update all other packages.
+#                Move to osg 3.6
 # Required
 # --------
 # - cmsRun fails without stdint.h (from glibc-headers)
@@ -61,13 +63,13 @@ RUN groupadd -r condor && \
     useradd -r -g condor -d /var/lib/condor -s /sbin/nologin condor
 
 # Sync singularity version
-RUN yum -y distro-sync --enablerepo=epel-testing singularity && \
+RUN yum -y distro-sync apptainer apptainer-suid && \
     yum clean all && \
     rm -rf /var/cache/yum
 
 # Disable overlay and privileged mode
-RUN perl -pi -e 's/^enable overlay =.*/enable overlay = no/g' /etc/singularity/singularity.conf && \
-    perl -pi -e 's/^allow setuid =.*/allow setuid = no/g'     /etc/singularity/singularity.conf
+RUN perl -pi -e 's/^enable overlay =.*/enable overlay = no/g' /etc/apptainer/apptainer.conf && \
+    perl -pi -e 's/^allow setuid =.*/allow setuid = no/g'     /etc/apptainer/apptainer.conf
 
 # 2022-Mar-30: Enable osg-upcoming. it was modified to include gfal2 >=2.20 and by default
 # osg-upcoming disabled due to xrootd. Should be gone after move to OSG 3.6
