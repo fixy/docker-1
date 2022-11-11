@@ -20,6 +20,8 @@ services:
     - ./config/default/etc/xrootd/robots.txt:/etc/xrootd/robots.txt:ro
     - /etc/xrootd/macaroon-secret:/etc/xrootd/macaroon-secret:ro
     - ./config/default/etc/xrootd/xrootd-clustered.cfg:/etc/xrootd/xrootd-clustered.cfg:ro
+    - ./config/default/etc/xrootd/adler.py:/etc/xrootd/adler.py:ro
+    - ./config/default/etc/xrootd/allfiles.txt:/etc/xrootd/allfiles.txt:ro
     - ./config/default/etc/xrootd/auth_file:/etc/xrootd/auth_file:ro
     - ./config/${HOSTNAME}/etc/xrootd/config.d:/etc/xrootd/config.d:ro
     - ./config/default/etc/supervisord.d/10-xrootd.conf:/etc/supervisord.d/10-xrootd.conf:ro
@@ -51,6 +53,8 @@ services:
     - ./config/default/etc/xrootd/robots.txt:/etc/xrootd/robots.txt:ro
     - /etc/xrootd/macaroon-secret:/etc/xrootd/macaroon-secret:ro
     - ./config/default/etc/xrootd/xrootd-clustered.cfg:/etc/xrootd/xrootd-clustered.cfg:ro
+    - ./config/default/etc/xrootd/adler.py:/etc/xrootd/adler.py:ro
+    - ./config/default/etc/xrootd/allfiles.txt:/etc/xrootd/allfiles.txt:ro
     - ./config/default/etc/xrootd/auth_file:/etc/xrootd/auth_file:ro
     - ./config/${HOSTNAME}/etc/xrootd/config.d:/etc/xrootd/config.d:ro
     - ./config/default/etc/supervisord.d/10-xrootd.conf:/etc/supervisord.d/10-xrootd.conf:ro
@@ -82,6 +86,8 @@ services:
     - ./config/default/etc/xrootd/robots.txt:/etc/xrootd/robots.txt:ro
     - /etc/xrootd/macaroon-secret:/etc/xrootd/macaroon-secret:ro
     - ./config/default/etc/xrootd/xrootd-clustered.cfg:/etc/xrootd/xrootd-clustered.cfg:ro
+    - ./config/default/etc/xrootd/adler.py:/etc/xrootd/adler.py:ro
+    - ./config/default/etc/xrootd/allfiles.txt:/etc/xrootd/allfiles.txt:ro
     - ./config/default/etc/xrootd/auth_file:/etc/xrootd/auth_file:ro
     - ./config/${HOSTNAME}/etc/xrootd/config.d:/etc/xrootd/config.d:ro
     - ./config/default/etc/supervisord.d/10-xrootd.conf:/etc/supervisord.d/10-xrootd.conf:ro
