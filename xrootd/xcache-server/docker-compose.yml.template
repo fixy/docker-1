@@ -28,6 +28,7 @@ services:
     - XRD_MNG_PORT=3041
     - LOCAL_ROOT=/storage/cms
     - SITENAME=T3_US_OSG_SoCal_Cache
+    - XRD_MONITOR=xrootd-shoveler.ultralight.org:9993
     image: ${SWARM}/xrootd-clustered-server:latest
     network_mode: host
     restart: unless-stopped
