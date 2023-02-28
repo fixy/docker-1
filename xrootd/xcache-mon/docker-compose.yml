@@ -1,6 +1,6 @@
 services:
   xrootd-cache-mon-hdd:
-    image: ${SWARM}/xrootd-clustered-server:latest
+    image: ${SWARM}/xrootd-stageout-server:latest
     network_mode: host
     restart: unless-stopped
     environment:
@@ -14,7 +14,7 @@ services:
     - /etc/group:/etc/group:ro
     - /storage/cms/store/temp/user/jbalcas.cachetest/:/storage/cms/store/temp/user/jbalcas.cachetest/:rw
   xrootd-cache-mon-nvme:
-    image: ${SWARM}/xrootd-clustered-server:latest
+    image: ${SWARM}/xrootd-stageout-server:latest
     network_mode: host
     restart: unless-stopped
     environment:
