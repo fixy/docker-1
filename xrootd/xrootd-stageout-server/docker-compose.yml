@@ -4,7 +4,34 @@ services:
     network_mode: host
     restart: unless-stopped
     environment:
+    # Proxy used mainly in cache containers. Not needed on XRootD stageout/read servers
     - X509_USER_PROXY=/etc/grid-security/x509
+    # Redirector configuration
+    - XRD_REDIR=xrootd-redir.ultralight.org
+    - XRD_REDIR_PORT=1213
+    # Local XRootD Ports
+    - XRD_PORT=1095
+    - XRD_MNG_PORT=1213
+    # Local FS point. This has to match with volume mounted
+    - LOCAL_ROOT=/storage/cms
+    # Sitename, mainly for reporting
+    - SITENAME=T2_US_Caltech
+    # Certificate/Key
+    - XRD_CERT=/etc/grid-security/xrootd/xrootdcert.pem
+    - XRD_KEY=/etc/grid-security/xrootd/xrootdkey.pem
+    # XRootD http secret key. Mandatory if HTTPREADWRITE is set
+    - XRD_HTTP_SECRET_KEY=SuperDuperSecureSecret
+    # Enable HTTP Read/Write
+    - HTTPREADWRITE=1
+    # Shoveler endpoint for reporting stats
+    - SHOVELER=xrootd-shoveler.ultralight.org
+    - SHOVELER_PORT=9993
+    # Type redirector (Optional - if defined, pod will act as redirector)
+    #- TYPE_REDIRECTOR=1
+    # Run XRootD in full debug mode (Optional - if defined, pod will run in full debug mode)
+    #- FULL_DEBUG
+    # Global redirector. (Optional - if defined, ti will register to master redirector - e.g. CMS Fermilab)
+    #- GLOBALREDIR=cmsxrootd.fnal.gov
     volumes:
     - /etc/xrootd/macaroon-secret:/etc/xrootd/macaroon-secret:ro
     - ./config/default/etc/xrootd/xrootd-clustered.cfg:/etc/xrootd/xrootd-clustered.cfg:ro

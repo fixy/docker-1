@@ -40,17 +40,5 @@ ADD config/default/etc/grid-security/vomsdir/cms/voms2.cern.ch.lsc /etc/grid-sec
 ADD config/default/etc/grid-security/grid-mapfile /etc/grid-security/grid-mapfile
 ADD config/default/etc/grid-security/voms-mapfile /etc/grid-security/voms-mapfile
 
-# These are specific for SENSE Rucio testing
-RUN yum -y install wget iputils iproute java
-RUN cd / && wget http://monalisa.cern.ch/FDT/lib/fdt.jar
-
 # Get latest CA's
 RUN fetch-crl || echo "Supress warnings."
-
-#RUN mkdir -p /tmp/ethr/
-#RUN cd /tmp/ethr/ && wget https://github.com/microsoft/ethr/releases/latest/download/ethr_linux.zip
-#RUN cd /tmp/ethr/ && unzip ethr_linux.zip
-#RUN mv /tmp/ethr/ethr /bin/ethr
-#RUN chmod +x /bin/ethr
-#RUN rm -rf /tmp/ethr/
-
