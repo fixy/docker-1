@@ -28,7 +28,6 @@ ADD config/default/etc/xrootd/scitokens.cfg /etc/xrootd/scitokens.cfg
 ADD config/default/etc/xrootd/robots.txt /etc/xrootd/robots.txt
 ADD config/default/etc/xrootd/xrootd-clustered.cfg /etc/xrootd/xrootd-clustered.cfg
 ADD config/default/etc/xrootd/auth_file /etc/xrootd/auth_file
-ADD config/default/etc/t2_maitenance.conf /etc/t2_maitenance.conf
 
 # Allow CMS VO Users to communicate;
 RUN mkdir -p /etc/grid-security/vomsdir/cms/
