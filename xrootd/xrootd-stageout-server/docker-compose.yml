@@ -20,7 +20,7 @@ services:
     - XRD_CERT=/etc/grid-security/xrootd/xrootdcert.pem
     - XRD_KEY=/etc/grid-security/xrootd/xrootdkey.pem
     # XRootD http secret key. Mandatory if HTTPREADWRITE is set
-    - XRD_HTTP_SECRET_KEY=SuperDuperSecureSecret
+    - XRD_HTTP_SECRET_KEY=AAAASTART_REPLACE_ME_HTTP_KEYAAAA
     # Enable HTTP Read/Write
     - HTTPREADWRITE=1
     # Shoveler endpoint for reporting stats
@@ -67,7 +67,7 @@ services:
     - XRD_CERT=/etc/grid-security/xrootd/xrootdcert.pem
     - XRD_KEY=/etc/grid-security/xrootd/xrootdkey.pem
     # XRootD http secret key. Mandatory if HTTPREADWRITE is set
-    #- XRD_HTTP_SECRET_KEY=SuperDuperSecureSecret
+    #- XRD_HTTP_SECRET_KEY=AAAASTART_REPLACE_ME_HTTP_KEYAAAA
     # Enable HTTP Read/Write
     #- HTTPREADWRITE=1
     # Shoveler endpoint for reporting stats
