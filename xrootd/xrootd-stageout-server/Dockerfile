@@ -32,8 +32,6 @@ ADD config/default/etc/xrootd/auth_file /etc/xrootd/auth_file
 
 # Add Custom checksum file (needed for Rucio tests and tmpfs, which does not support xattr)
 ADD config/default/etc/xrootd/checksum.py /etc/xrootd/checksum.py
-RUN mkdir -p /rucio
-RUN chown xrootd:xrootd /rucio
 
 # Allow CMS VO Users to communicate;
 RUN mkdir -p /etc/grid-security/vomsdir/cms/

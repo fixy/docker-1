@@ -32,6 +32,11 @@ services:
     #- FULL_DEBUG
     # Global redirector. (Optional - if defined, ti will register to master redirector - e.g. CMS Fermilab)
     #- GLOBALREDIR=cmsxrootd.fnal.gov
+    # DFS - Distributed File System (Do all servers see same Filesystem?)
+    # Redirect all lookup calls to original data servers. Redirector does not have visibility of FS
+    #- DFS=1
+    # CUSTOMCHECKSUM - Custom Checksum Wrapper Script (Useful if FS does not support xattr)
+    #- CUSTOMCHECKSUM=1
     volumes:
     - ./config/${HOSTNAME}/write/etc/t2_maitenance.conf:/etc/t2_maitenance.conf:ro
     - /etc/xrootd/macaroon-secret:/etc/xrootd/macaroon-secret:ro
