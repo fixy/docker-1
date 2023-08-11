@@ -18,6 +18,9 @@ t readcmsdata  /store                   lr
 u cmsprod writecmsdata readcmsdata
 u phedex writecmsdata readcmsdata
 
+# jbalcas anything on /
+u jbalcas / a
+
 # lcgadmin have read access and write into /store/unmerged/SAM
 u lcgadmin readcmsdata /store/unmerged/SAM a
 
