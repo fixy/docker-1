@@ -1,9 +1,4 @@
-# This means that all the users have read access to the datasets
-# ===================================================================
-# WARNING! THIS FILE WAS AUTOMATICALLY PREPARED BY PUPPET
-# ANY MODIFICATIONS TO THIS FILE WILL BE OVERWRITTEN ON PUPPET RUN
-# IN CASE YOU WANT TO DO MODIFICATIONS, MAKE SURE YOU DISABLE PUPPET!
-# ===================================================================
+# Define some rules for all known FS paths 
 t writecmsdata /store/backfill          a  \
                /store/data              a  \
                /store/generator         a  \
