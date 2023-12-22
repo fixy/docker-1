@@ -19,8 +19,8 @@ RUN mkdir -p /var/log/xrootd/clustered/
 RUN chown -R xrootd:xrootd /var/log/xrootd/
 
 # XCache Rucio reporter. Installing it manually
-RUN yum -y install git procps-ng && yum clean all
-RUN cd /opt && git clone https://github.com/juztas/xcache
+#RUN yum -y install git procps-ng && yum clean all
+#RUN cd /opt && git clone https://github.com/juztas/xcache
 
 # Install custom monitoring
 RUN yum -y install net-tools iproute git wget && yum clean all
@@ -35,6 +35,8 @@ ADD config/default/etc/xrootd/auth_file /etc/xrootd/auth_file
 ADD config/default/etc/xrootd/xrootd.cfg /etc/xrootd/xrootd.cfg
 ADD config/default/etc/xrootd/robots.txt /etc/xrootd/robots.txt
 ADD config/default/etc/xrootd/scitokens.cfg /etc/xrootd/scitokens.cfg
+ADD config/default/usr/local/sbin/startup.sh /usr/local/sbin/startup.sh
+RUN chmod +x /usr/local/sbin/startup.sh
 
 # Allow CMS VO Users to communicate;
 RUN mkdir -p /etc/grid-security/vomsdir/cms/
