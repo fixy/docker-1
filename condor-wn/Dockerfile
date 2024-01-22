@@ -1,4 +1,4 @@
-FROM opensciencegrid/osg-wn:3.6-el8
+FROM opensciencegrid/osg-wn:23-el8
 # Notes:
 # Cloned from Nebraska folks: https://github.com/unlhcc/docker-osg-wn-el7
 #
@@ -15,6 +15,7 @@ FROM opensciencegrid/osg-wn:3.6-el8
 #                osg-upcoming disabled due to xrootd. Should be gone after move to OSG 3.6
 # - 2022-Oct-27: Singularity renamed to apptainer. Update all other packages.
 #                Move to osg 3.6
+# - 2024-Jan-22: Moved to OSG 23-el8 release
 # Required
 # --------
 # - cmsRun fails without stdint.h (from glibc-headers)
@@ -70,10 +71,6 @@ RUN yum -y distro-sync apptainer apptainer-suid && \
 # Disable overlay and privileged mode
 RUN perl -pi -e 's/^enable overlay =.*/enable overlay = no/g' /etc/apptainer/apptainer.conf && \
     perl -pi -e 's/^allow setuid =.*/allow setuid = no/g'     /etc/apptainer/apptainer.conf
-
-# 2022-Mar-30: Enable osg-upcoming. it was modified to include gfal2 >=2.20 and by default
-# osg-upcoming disabled due to xrootd. Should be gone after move to OSG 3.6
-RUN yum-config-manager --enable osg-upcoming;
 
 # yum update
 RUN yum update -y && \
