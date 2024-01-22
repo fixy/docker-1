@@ -1,4 +1,4 @@
-FROM opensciencegrid/software-base:3.6-al8-release
+FROM opensciencegrid/software-base:23-al8-release
 
 ARG UNAME=xrootd
 ARG UID=2010

@@ -1,0 +1,49 @@
+name: Docker Image Build For XRootD Stageout Server For SDN
+
+on:
+  workflow_dispatch:
+    inputs:
+      buildtag:
+        description: "Build Tag"
+        default: "dev"
+        type: "string"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_USER: ${{secrets.DOCKER_USER}}
+      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      DOCKER_REGISTRY: ${{secrets.DOCKER_REGS}}
+      DOCKER_SDN_USER: ${{secrets.DOCKER_SDN_USER}}
+      DOCKER_SDN_PASSWORD: ${{secrets.DOCKER_SDN_PASSWORD}}
+      DOCKER_SDN_REGISTRY: ${{secrets.DOCKER_SDN_REGS}}
+    steps:
+    - name: Checkout tools repo
+      uses: actions/checkout@v3
+      with:
+        repository: cmscaltech/docker
+        path: cmscaltech-docker
+
+    - name: docker login
+      run: |
+        docker login $DOCKER_REGISTRY -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker login $DOCKER_SDN_REGISTRY -u $DOCKER_SDN_USER -p $DOCKER_SDN_PASSWORD
+
+    - name: Build XRootD Stageout Server SDN Docker image
+      run: |
+        cd cmscaltech-docker/xrootd/xrootd-stageout-server-sdn/
+        docker build . --file Dockerfile --tag cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+
+    - name: Docker Push XRootD Stageout Server SDN Image to first registry
+      run: |
+        docker push cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+        docker tag cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d) cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}
+        docker push cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+
+    - name: Docker Push XRootD Stageout Server SDN Image to second registry
+      run: |
+        docker tag cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }} $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}
+        docker push $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}
+        docker tag $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }} $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+        docker push $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server-sdn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
