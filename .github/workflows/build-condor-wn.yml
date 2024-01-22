@@ -41,9 +41,9 @@ jobs:
         docker tag cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d) cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}
         docker push cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
 
-    - name: Docker Push Condor WN Image with tag only
+    - name: Docker Push Condor WN Image to second registry
       run: |
-        docker tag cmscaltech/condor-wn:${{ github.event.inputs.buildtag }} $DOCKER_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}
-        docker push $DOCKER_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}
-        docker tag $DOCKER_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }} $DOCKER_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
-        docker push $DOCKER_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+        docker tag cmscaltech/condor-wn:${{ github.event.inputs.buildtag }} $DOCKER_SDN_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}
+        docker push $DOCKER_SDN_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}
+        docker tag $DOCKER_SDN_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }} $DOCKER_SDN_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+        docker push $DOCKER_SDN_REGISTRY/cmscaltech/condor-wn:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
