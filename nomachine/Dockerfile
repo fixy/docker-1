@@ -1,4 +1,4 @@
-FROM ubuntu:kinetic
+FROM ubuntu:jammy
 # Notes:
 #
 # Modifications:
@@ -7,6 +7,7 @@ FROM ubuntu:kinetic
 # - 2023-Feb-27: Install JRE/JDK and icedtea packages.
 # - 2023-Feb-27: Install Chromium browser
 # - 2024-Jan-21: Update NoMachine to 8.10.1_1
+# - 2024-Jan-21: Move to 22.04.3 LTS Jammy Jellyfish Ubuntu version
 
 ENV DEBIAN_FRONTEND=noninteractive
 
