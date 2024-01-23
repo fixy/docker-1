@@ -18,6 +18,10 @@ jobs:
       DOCKER_SDN_USER: ${{secrets.DOCKER_SDN_USER}}
       DOCKER_SDN_PASSWORD: ${{secrets.DOCKER_SDN_PASSWORD}}
       DOCKER_SDN_REGISTRY: ${{secrets.DOCKER_SDN_REGS}}
+      DOCKER_TIER2_USER: ${{secrets.DOCKER_TIER2_USER}}
+      DOCKER_TIER2_PASSWORD: ${{secrets.DOCKER_TIER2_PASSWORD}}
+      DOCKER_TIER2_REGISTRY: ${{secrets.DOCKER_TIER2_REGS}}
+      IMAGE_NAME: "cmscaltech/xrootd-stageout-server"
     steps:
     - name: Checkout tools repo
       uses: actions/checkout@v3
@@ -29,21 +33,29 @@ jobs:
       run: |
         docker login $DOCKER_REGISTRY -u $DOCKER_USER -p $DOCKER_PASSWORD
         docker login $DOCKER_SDN_REGISTRY -u $DOCKER_SDN_USER -p $DOCKER_SDN_PASSWORD
-
-    - name: Build XRootD Stageout Server Docker image
+        docker login $DOCKER_TIER2_REGISTRY -u $DOCKER_TIER2_USER -p $DOCKER_TIER2_PASSWORD
+    - name: Build Docker image
       run: |
-        cd cmscaltech-docker/xrootd/xrootd-stageout-server
-        docker build . --file Dockerfile --tag cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+        cd cmscaltech-docker/xrootd/xrootd-stageout-server/
+        docker build . --file Dockerfile \
+            --tag $IMAGE_NAME:${{ github.event.inputs.buildtag }} \
+            --tag $IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d) \
+            --tag $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }} \
+            --tag $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d) \
+            --tag $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }} \
+            --tag $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
 
-    - name: Docker Push XRootD Stageout Server Image to first registry
+    - name: Docker Push Image to first registry
       run: |
-        docker push cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
-        docker tag cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d) cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}
-        docker push cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+        docker push $IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+        docker push $IMAGE_NAME:${{ github.event.inputs.buildtag }}
 
-    - name: Docker Push XRootD Stageout Server Image to second registry
+    - name: Docker Push Image to second registry
       run: |
-        docker tag cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }} $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}
-        docker push $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}
-        docker tag $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }} $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
-        docker push $DOCKER_SDN_REGISTRY/cmscaltech/xrootd-stageout-server:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+        docker push $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}
+        docker push $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
+
+    - name: Docker Push Image to third registry
+      run: |
+        docker push $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}
+        docker push $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)

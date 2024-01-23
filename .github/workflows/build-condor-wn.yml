@@ -34,7 +34,7 @@ jobs:
         docker login $DOCKER_REGISTRY -u $DOCKER_USER -p $DOCKER_PASSWORD
         docker login $DOCKER_SDN_REGISTRY -u $DOCKER_SDN_USER -p $DOCKER_SDN_PASSWORD
         docker login $DOCKER_TIER2_REGISTRY -u $DOCKER_TIER2_USER -p $DOCKER_TIER2_PASSWORD
-    - name: Build Condor WN Docker image
+    - name: Build Docker image
       run: |
         cd cmscaltech-docker/condor-wn
         docker build . --file Dockerfile \
@@ -45,18 +45,17 @@ jobs:
             --tag $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }} \
             --tag $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
 
-
-    - name: Docker Push Condor WN Image to first registry
+    - name: Docker Push Image to first registry
       run: |
         docker push $IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
         docker push $IMAGE_NAME:${{ github.event.inputs.buildtag }}
 
-    - name: Docker Push Condor WN Image to second registry
+    - name: Docker Push Image to second registry
       run: |
         docker push $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}
         docker push $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
 
-    - name: Docker Push Condor WN Image to third registry
+    - name: Docker Push Image to third registry
       run: |
         docker push $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}
         docker push $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
