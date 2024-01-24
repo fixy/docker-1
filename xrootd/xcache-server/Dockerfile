@@ -16,7 +16,8 @@ RUN yum -y install xrootd xrootd-client xrootd-client-devel xrootd-client-libs \
                    xrootd-voms voms-clients xrootd-doc xrootd-scitokens scitokens-cpp && yum clean all
 
 RUN mkdir -p /var/log/xrootd/clustered/ && \
-    chown -R xrootd:xrootd /var/log/xrootd/
+    chown -R xrootd:xrootd /var/log/xrootd/ &&
+    mkdir -p /etc/grid-security/mapfile/
 
 # XCache Rucio reporter. Installing it manually
 #RUN yum -y install git procps-ng && yum clean all
@@ -46,8 +47,8 @@ COPY config/default/etc/grid-security/vomsdir/cms/voms-cms-auth.app.cern.ch.lsc 
 COPY config/default/etc/grid-security/vomsdir/cms/voms2.cern.ch.lsc /etc/grid-security/vomsdir/cms/voms2.cern.ch.lsc
 
 # Add default grid and voms mapfile
-COPY config/default/etc/grid-security/grid-mapfile /etc/grid-security/grid-mapfile
-COPY config/default/etc/grid-security/voms-mapfile /etc/grid-security/voms-mapfile
+COPY config/default/etc/grid-security/mapfile/grid-mapfile /etc/grid-security/mapfile/grid-mapfile
+COPY config/default/etc/grid-security/mapfile/voms-mapfile /etc/grid-security/mapfile/voms-mapfile
 
 # Add cron to fetch crl on boot
 COPY config/default/etc/cron.d/fetch-crl-reboot /etc/cron.d/fetch-crl-reboot
