@@ -16,7 +16,7 @@ RUN yum -y install xrootd xrootd-client xrootd-client-devel xrootd-client-libs \
                    xrootd-voms voms-clients xrootd-doc xrootd-scitokens scitokens-cpp && yum clean all
 
 RUN mkdir -p /var/log/xrootd/clustered/ && \
-    chown -R xrootd:xrootd /var/log/xrootd/ &&
+    chown -R xrootd:xrootd /var/log/xrootd/ && \
     mkdir -p /etc/grid-security/mapfile/
 
 # XCache Rucio reporter. Installing it manually
