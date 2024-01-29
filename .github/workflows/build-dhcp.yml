@@ -31,9 +31,9 @@ jobs:
 
     - name: docker login
       run: |
-        docker login $DOCKER_REGISTRY -u $DOCKER_USER -p $DOCKER_PASSWORD
-        docker login $DOCKER_SDN_REGISTRY -u $DOCKER_SDN_USER -p $DOCKER_SDN_PASSWORD
-        docker login $DOCKER_TIER2_REGISTRY -u $DOCKER_TIER2_USER -p $DOCKER_TIER2_PASSWORD
+        docker login $DOCKER_REGISTRY -u $DOCKER_USER --password-stdin $DOCKER_PASSWORD
+        docker login $DOCKER_SDN_REGISTRY -u $DOCKER_SDN_USER --password-stdin $DOCKER_SDN_PASSWORD
+        docker login $DOCKER_TIER2_REGISTRY -u $DOCKER_TIER2_USER --password-stdin $DOCKER_TIER2_PASSWORD
     - name: Build Docker image
       run: |
         cd cmscaltech-docker/dhcp
