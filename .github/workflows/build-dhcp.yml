@@ -19,6 +19,7 @@ jobs:
       DOCKER_TIER2_USER: ${{secrets.DOCKER_TIER2_USER}}
       DOCKER_TIER2_REGISTRY: ${{secrets.DOCKER_TIER2_REGS}}
       IMAGE_NAME: "cmscaltech/dhcp"
+      BUILD_DIR: "cmscaltech-docker/dhcp"
     steps:
     - name: Checkout tools repo
       uses: actions/checkout@v3
@@ -57,7 +58,7 @@ jobs:
       id: mainRun
       if: always() && (steps.dockerOne.outcome == 'success' || steps.dockerTwo.outcome == 'success' || steps.dockerThree.outcome == 'success')
       run: |
-        cd cmscaltech-docker/dhcp
+        cd $BUILD_DIR
         docker build . --file Dockerfile \
             --tag $IMAGE_NAME:${{ github.event.inputs.buildtag }} \
             --tag $IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d) \
