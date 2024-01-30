@@ -29,13 +29,28 @@ jobs:
         repository: cmscaltech/docker
         path: cmscaltech-docker
 
-    - name: docker login
+    - name: docker login one
+      id: dockerOne
+      if: always()
       run: |
         docker login $DOCKER_REGISTRY -u $DOCKER_USER --password-stdin $DOCKER_PASSWORD
+
+    - name: docker login one
+      id: dockerTwo
+      if: always()
+      run: |
         docker login $DOCKER_SDN_REGISTRY -u $DOCKER_SDN_USER --password-stdin $DOCKER_SDN_PASSWORD
+
+    - name: docker login three
+      id: dockerThree
+      if: always()
+      run: |
         docker login $DOCKER_TIER2_REGISTRY -u $DOCKER_TIER2_USER --password-stdin $DOCKER_TIER2_PASSWORD
+
+
     - name: Build Docker image
       id: mainRun
+      if: always() && (steps.dockerOne.outcome == 'success' || steps.dockerTwo.outcome == 'success' || steps.dockerThree.outcome == 'success')
       run: |
         cd cmscaltech-docker/dhcp
         docker build . --file Dockerfile \
