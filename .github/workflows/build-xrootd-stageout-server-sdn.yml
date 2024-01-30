@@ -35,6 +35,7 @@ jobs:
         docker login $DOCKER_SDN_REGISTRY -u $DOCKER_SDN_USER --password-stdin $DOCKER_SDN_PASSWORD
         docker login $DOCKER_TIER2_REGISTRY -u $DOCKER_TIER2_USER --password-stdin $DOCKER_TIER2_PASSWORD
     - name: Build Docker image
+      id: mainRun
       run: |
         cd cmscaltech-docker/xrootd/xrootd-stageout-server-sdn/
         docker build . --file Dockerfile \
@@ -46,16 +47,19 @@ jobs:
             --tag $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
 
     - name: Docker Push Image to first registry
+      if: always() && steps.mainRun.outcome == 'success'
       run: |
         docker push $IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
         docker push $IMAGE_NAME:${{ github.event.inputs.buildtag }}
 
     - name: Docker Push Image to second registry
+      if: always() && steps.mainRun.outcome == 'success'
       run: |
         docker push $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}
         docker push $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
 
     - name: Docker Push Image to third registry
+      if: always() && steps.mainRun.outcome == 'success'
       run: |
         docker push $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}
         docker push $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
