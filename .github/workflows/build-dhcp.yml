@@ -13,13 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_USER: ${{secrets.DOCKER_USER}}
-      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       DOCKER_REGISTRY: ${{secrets.DOCKER_REGS}}
       DOCKER_SDN_USER: ${{secrets.DOCKER_SDN_USER}}
-      DOCKER_SDN_PASSWORD: ${{secrets.DOCKER_SDN_PASSWORD}}
       DOCKER_SDN_REGISTRY: ${{secrets.DOCKER_SDN_REGS}}
       DOCKER_TIER2_USER: ${{secrets.DOCKER_TIER2_USER}}
-      DOCKER_TIER2_PASSWORD: ${{secrets.DOCKER_TIER2_PASSWORD}}
       DOCKER_TIER2_REGISTRY: ${{secrets.DOCKER_TIER2_REGS}}
       IMAGE_NAME: "cmscaltech/dhcp"
     steps:
@@ -29,24 +26,32 @@ jobs:
         repository: cmscaltech/docker
         path: cmscaltech-docker
 
-    - name: docker login one
+    - name: Login to First Docker Registry
       id: dockerOne
       if: always()
-      run: |
-        docker login $DOCKER_REGISTRY -u $DOCKER_USER --password-stdin $DOCKER_PASSWORD
+      uses: docker/login-action@v3
+      with:
+        registry: ${{secrets.DOCKER_REGS}}
+        username: ${{secrets.DOCKER_USER}}
+        password: ${{secrets.DOCKER_PASSWORD}}
 
-    - name: docker login one
+    - name: Login to Second Docker Registry
       id: dockerTwo
       if: always()
-      run: |
-        docker login $DOCKER_SDN_REGISTRY -u $DOCKER_SDN_USER --password-stdin $DOCKER_SDN_PASSWORD
+      uses: docker/login-action@v3
+      with:
+        registry: ${{secrets.DOCKER_SDN_REGS}}
+        username: ${{secrets.DOCKER_SDN_USER}}
+        password: ${{secrets.DOCKER_SDN_PASSWORD}}
 
-    - name: docker login three
+    - name: Login to Thrid Docker Registry
       id: dockerThree
       if: always()
-      run: |
-        docker login $DOCKER_TIER2_REGISTRY -u $DOCKER_TIER2_USER --password-stdin $DOCKER_TIER2_PASSWORD
-
+      uses: docker/login-action@v3
+      with:
+        registry: ${{secrets.DOCKER_TIER2_REGS}}
+        username: ${{secrets.DOCKER_TIER2_USER}}
+        password: ${{secrets.DOCKER_TIER2_PASSWORD}}
 
     - name: Build Docker image
       id: mainRun
@@ -62,19 +67,19 @@ jobs:
             --tag $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
 
     - name: Docker Push Image to first registry
-      if: always() && steps.mainRun.outcome == 'success'
+      if: always() && (steps.mainRun.outcome == 'success' && steps.dockerOne.outcome == 'success')
       run: |
         docker push $IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
         docker push $IMAGE_NAME:${{ github.event.inputs.buildtag }}
 
     - name: Docker Push Image to second registry
-      if: always() && steps.mainRun.outcome == 'success'
+      if: always() && (steps.mainRun.outcome == 'success' && steps.dockerTwo.outcome == 'success')
       run: |
         docker push $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}
         docker push $DOCKER_SDN_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
 
     - name: Docker Push Image to third registry
-      if: always() && steps.mainRun.outcome == 'success'
+      if: always() && (steps.mainRun.outcome == 'success' && steps.dockerThree.outcome == 'success')
       run: |
         docker push $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}
         docker push $DOCKER_TIER2_REGISTRY/$IMAGE_NAME:${{ github.event.inputs.buildtag }}-$(date +%Y%m%d)
