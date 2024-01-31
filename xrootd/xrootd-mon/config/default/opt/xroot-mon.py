@@ -43,15 +43,23 @@ class XRootDCache:
     def __cleanGauge(self):
         """Get new/clean prometheus gauge."""
         self.gauge = Gauge("xrootd_exit", "XRootD Exit Code",
-                            ["hostname", "mode", "protocol"],
+                            ["hostname", "mode", "protocol", "name"],
                             registry=self.registry)
         self.runtimeGauge = Gauge("xrootd_runtime", "XRootD Command Runtime",
-                                    ["hostname", "mode", "protocol"],
+                                    ["hostname", "mode", "protocol", "name"],
                                     registry=self.registry)
+
+    def _getLabels(self, hostname, mode, protocol):
+        """Get Labels for Prometheus Gauge."""
+        return {"hostname": hostname, "mode": mode,
+                "protocol": protocol, "name": self.params['XRD_UNIQ_NAME']}
 
     def _getParams(self):
         out = {}
-        for key in ['XRD_ENDPOINT', 'X509_USER_PROXY', 'XRD_WORKDIR']:
+        # Mandatory ENV Variables
+        for key in ['XRD_ENDPOINT', 'X509_USER_PROXY',
+                    'XRD_WORKDIR', 'XRD_UNIQ_NAME',
+                    'XRD_PATH']:
             out[key] = os.environ.get(key)
             if not out[key]:
                 raise Exception(f'ENV Variable {key} not found. Fatal Error. Exiting.')
@@ -61,13 +69,27 @@ class XRootDCache:
                 out[key] = out[key].split(',')
             else:
                 out[key] = [out[key]]
+        # Optional ENV Variables
+        tmpKey = os.environ.get('XRD_UNIQ_WRITE')
+        if tmpKey:
+            out['XRD_UNIQ_WRITE'] = bool(tmpKey)
+        else:
+            out['XRD_UNIQ_WRITE'] = False
         return out
 
     def _getLFN(self, currdate):
-        currLFN = '/store/temp/user/jbalcas.kube-xrootd-test/%s/%s/%s/%s-cache-test' % (currdate.year,
-                                                                                    currdate.month,
-                                                                                    currdate.day,
-                                                                                    currdate.hour)
+        """Get LFN"""
+        currLFN = '%s/%s/%s/%s/%s-cache-test-%s' % (self.params['XRD_PATH'],currdate.year,
+                                                    currdate.month, currdate.day,
+                                                    currdate.hour, self.params['XRD_UNIQ_NAME'])
+        if 'cache' in self.params['XRD_MODES']:
+            currLFN = '%s/%s/%s/%s/%s-cache-test' % (self.params['XRD_PATH'], currdate.year,
+                                                        currdate.month, currdate.day,
+                                                        currdate.hour)
+        if 'write' not in self.params['XRD_MODES'] and 'read' in self.params['XRD_MODES']:
+            currLFN = '%s/%s/%s/%s/%s-cache-test' % (self.params['XRD_PATH'], currdate.year,
+                                                        currdate.month, currdate.day,
+                                                        currdate.hour)
         self.lfn = currLFN
 
     def _executeCmd(self, cmd):
@@ -86,10 +108,16 @@ class XRootDCache:
         totalRuntime = endTime - stTime
         return out, exCode, totalRuntime
 
+    def _writeFile(self, protocol, hostname):
+        """Write File to XRootD"""
+        cmd = f"timeout 30 gfal-copy -p -f {self.workdir}/xrd-cache-test {protocol}://{hostname}/{self.lfn}"
+        _, exitCode, runtime = self._executeCmd(cmd)
+        self.gauge.labels(**self._getLabels(hostname, "write", protocol)).set(exitCode)
+        self.runtimeGauge.labels(**self._getLabels(hostname, "write", protocol)).set(runtime)
+        return exitCode
+
     def preparefiles(self, currdate):
         """ Prepare Files for xrdcp"""
-        if self.prevdatetime == currdate:
-            return []
         if 'write' not in self.params['XRD_MODES']:
             return []
         content = f"This is a test file for xrdcp, created at {currdate}"
@@ -99,10 +127,7 @@ class XRootDCache:
             fd.write(content)
         exitCodes = []
         for protocol in self.params['XRD_PROTOCOLS']:
-            cmd = f"timeout 30 gfal-copy -p -f {self.workdir}/xrd-cache-test {protocol}://{self.params['XRD_ENDPOINT']}/{self.lfn}"
-            _, exitCode, runtime = self._executeCmd(cmd)
-            self.gauge.labels(self.params['XRD_ENDPOINT'], "write", protocol).set(exitCode)
-            self.runtimeGauge.labels(self.params['XRD_ENDPOINT'], "write", protocol).set(runtime)
+            exitCode = self._writeFile(protocol, self.params['XRD_ENDPOINT'])
             exitCodes.append(exitCode)
         if not any(exitCodes):
             self.prevdatetime = currdate
@@ -112,7 +137,7 @@ class XRootDCache:
         """ Main Method"""
         self.__cleanRegistry()
         self.__cleanGauge()
-        currdate = datetime.now()
+        currdate = datetime.utcnow()
         self._getLFN(currdate)
         self.preparefiles(currdate)
         cmd = f"timeout 30 xrdmapc --list all {self.params['XRD_ENDPOINT']}"
@@ -121,8 +146,8 @@ class XRootDCache:
         self.logger.info('Calling %s', cmd)
         retOutput = []
         retOutput, exitCode, runtime = self._executeCmd(cmd)
-        self.gauge.labels(self.params['XRD_ENDPOINT'], "xrdmapc", "xrootd").set(exitCode)
-        self.runtimeGauge.labels(self.params['XRD_ENDPOINT'], "xrdmapc", "xrootd").set(runtime)
+        self.gauge.labels(**self._getLabels(self.params['XRD_ENDPOINT'], "xrdmapc", "xrootd")).set(exitCode)
+        self.runtimeGauge.labels(**self._getLabels(self.params['XRD_ENDPOINT'], "xrdmapc", "xrootd")).set(runtime)
         if exitCode:
             return
         self.logger.info(f"Returned out from Redirector: {retOutput}")
@@ -135,12 +160,21 @@ class XRootDCache:
             else:
                 self.logger.debug(f"Skipping line: {line}")
                 continue
+            if 'write' in self.params['XRD_MODES'] and self.params['XRD_UNIQ_WRITE']:
+                for protocol in self.params['XRD_PROTOCOLS']:
+                    self._writeFile(protocol, host)
             if 'read' in self.params['XRD_MODES']:
                 for protocol in self.params['XRD_PROTOCOLS']:
                     cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn} /dev/null"
                     _, exitCode, runtime = self._executeCmd(cmd)
-                    self.gauge.labels(host, "read", protocol).set(exitCode)
-                    self.runtimeGauge.labels(host, "read", protocol).set(runtime)
+                    self.gauge.labels(**self._getLabels(host, "read", protocol)).set(exitCode)
+                    self.runtimeGauge.labels(**self._getLabels(host, "read", protocol)).set(runtime)
+            if 'cache' in self.params['XRD_MODES']:
+                for protocol in self.params['XRD_PROTOCOLS']:
+                    cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn} {self.workdir}/xrd-cache-test"
+                    _, exitCode, runtime = self._executeCmd(cmd)
+                    self.gauge.labels(**self._getLabels(host, "cache", protocol)).set(exitCode)
+                    self.runtimeGauge.labels(**self._getLabels(host, "cache", protocol)).set(runtime)
 
     def execute(self):
         """Execute Main Program."""
@@ -149,7 +183,7 @@ class XRootDCache:
         self.main()
         endTime = int(time.time())
         totalRuntime = endTime - startTime
-        self.runtimeGauge.labels('MAIN_PROGRAM', "main", "xrootd").set(totalRuntime)
+        self.runtimeGauge.labels(**self._getLabels('MAIN_PROGRAM', "main", "xrootd")).set(totalRuntime)
         data = generate_latest(self.registry)
         with open(f'{self.workdir}/xrootd-metrics', 'wb') as fd:
             fd.write(data)
