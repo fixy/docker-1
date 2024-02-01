@@ -18,7 +18,7 @@ jobs:
       DOCKER_SDN_REGISTRY: ${{secrets.DOCKER_SDN_REGS}}
       DOCKER_TIER2_USER: ${{secrets.DOCKER_TIER2_USER}}
       DOCKER_TIER2_REGISTRY: ${{secrets.DOCKER_TIER2_REGS}}
-      IMAGE_NAME: "cmscaltech/dhcp"
+      IMAGE_NAME: "cmscaltech/xrootd-stageout-server"
       BUILD_DIR: "cmscaltech-docker/xrootd/xrootd-stageout-server/"
     steps:
     - name: Checkout tools repo
