@@ -7,6 +7,7 @@ do
         echo "[Cleaner] Cleaning UP /storage/cms/store/temp/* files older than 5 minute files"
         find /storage/cms/store/temp/* -type f -mmin +5 -exec rm -f {} \;
     else
+        echo "[Cleaner] No SENSE_CLEANUP Flag set. Exit and will not do anything"
         exit 0
     fi
     echo "[Cleaner] Sleep 1 minute before next loop"
