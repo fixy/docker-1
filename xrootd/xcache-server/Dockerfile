@@ -24,14 +24,19 @@ RUN mkdir -p /var/log/xrootd/clustered/ && \
 #RUN cd /opt && git clone https://github.com/juztas/xcache
 
 # Install custom monitoring
-# TOOD Need to rewrite it into prometheus format
-#RUN yum -y install net-tools iproute git wget && yum clean all
-#RUN mkdir -p /opt
-#RUN cd /opt/ && git clone https://github.com/juztas/t2_maitenance
-#RUN cd /opt/t2_maitenance && pip3 install -r requirements.txt
-#RUN cd /opt/t2_maitenance && python3 setup.py install
+RUN pip3 install prometheus_client flask
+COPY config/default/opt/xroot-mon.py /opt/xroot-mon.py
+COPY config/default/opt/http-server.py /opt/http-server.py
 
-# Add Supervisor.d and xrootd configsc
+# To track connections, we need pyasn lib and GeoIP database
+RUN yum -y install gcc python3-devel python3-gunicorn && yum clean all
+RUN pip3 install pyasn psutil
+RUN mkdir -p /opt/pyasn
+RUN pyasn_util_download.py --latestv46 --filename /opt/pyasn/GeoIPASNum.rib && \
+    pyasn_util_convert.py --single /opt/pyasn/GeoIPASNum.rib /opt/pyasn/GeoIPASNum.dat && \
+    rm -f /opt/pyasn/GeoIPASNum.rib
+
+# Add Supervisor.d and xrootd configs
 COPY config/default/etc/supervisord.d/10-xrootd.conf /etc/supervisord.d/10-xrootd.conf
 COPY config/default/etc/xrootd/auth_file /etc/xrootd/auth_file
 COPY config/default/etc/xrootd/xrootd.cfg /etc/xrootd/xrootd.cfg
