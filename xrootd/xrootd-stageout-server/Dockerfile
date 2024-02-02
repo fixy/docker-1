@@ -21,7 +21,7 @@ COPY config/default/opt/xroot-mon.py /opt/xroot-mon.py
 COPY config/default/opt/http-server.py /opt/http-server.py
 
 # To track connections, we need pyasn lib and GeoIP database
-RUN yum -y install gcc python3-devel && yum clean all
+RUN yum -y install gcc python3-devel python3-gunicorn && yum clean all
 RUN pip3 install pyasn psutil
 RUN mkdir -p /opt/pyasn
 RUN pyasn_util_download.py --latestv46 --filename /opt/pyasn/GeoIPASNum.rib && \
