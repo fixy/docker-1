@@ -29,6 +29,7 @@ class XRootDCache:
     def __init__(self, logger):
         self.logger = logger
         self.prevdatetime = None
+        self.currdatetime = None
         self.params = self._getParams()
         self.workdir = self.params['XRD_WORKDIR']
         self.lfn = None
@@ -77,8 +78,9 @@ class XRootDCache:
             out['XRD_UNIQ_WRITE'] = False
         return out
 
-    def _getLFN(self, currdate):
+    def _getLFN(self):
         """Get LFN"""
+        currdate = self.currdatetime
         currLFN = '%s/%s/%s/%s/%s-cache-test-%s' % (self.params['XRD_PATH'],currdate.year,
                                                     currdate.month, currdate.day,
                                                     currdate.hour, self.params['XRD_UNIQ_NAME'])
@@ -110,17 +112,17 @@ class XRootDCache:
 
     def _writeFile(self, protocol, hostname):
         """Write File to XRootD"""
-        cmd = f"timeout 30 gfal-copy -p -f {self.workdir}/xrd-cache-test {protocol}://{hostname}/{self.lfn}"
+        cmd = f"timeout 30 gfal-copy -p -f {self.workdir}/xrd-cache-test {protocol}://{hostname}/{self.lfn}-{hostname}"
         _, exitCode, runtime = self._executeCmd(cmd)
         self.gauge.labels(**self._getLabels(hostname, "write", protocol)).set(exitCode)
         self.runtimeGauge.labels(**self._getLabels(hostname, "write", protocol)).set(runtime)
         return exitCode
 
-    def preparefiles(self, currdate):
+    def preparefiles(self):
         """ Prepare Files for xrdcp"""
         if 'write' not in self.params['XRD_MODES']:
             return []
-        content = f"This is a test file for xrdcp, created at {currdate}"
+        content = f"This is a test file for xrdcp, created at {self.currdatetime}"
         if os.path.isfile(f'{self.workdir}/xrd-cache-test'):
             os.remove(f'{self.workdir}/xrd-cache-test')
         with open(f'{self.workdir}/xrd-cache-test', 'w', encoding='utf-8') as fd:
@@ -130,16 +132,16 @@ class XRootDCache:
             exitCode = self._writeFile(protocol, self.params['XRD_ENDPOINT'])
             exitCodes.append(exitCode)
         if not any(exitCodes):
-            self.prevdatetime = currdate
+            self.prevdatetime = self.currdatetime
         return exitCodes
 
     def main(self):
         """ Main Method"""
         self.__cleanRegistry()
         self.__cleanGauge()
-        currdate = datetime.utcnow()
-        self._getLFN(currdate)
-        self.preparefiles(currdate)
+        self.currdatetime = datetime.utcnow()
+        self._getLFN()
+        self.preparefiles()
         cmd = f"timeout 30 xrdmapc --list all {self.params['XRD_ENDPOINT']}"
         # xrdmapc --list all xcache.ultralight.org:2040
         # returns output as byte string
