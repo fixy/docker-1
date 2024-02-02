@@ -82,8 +82,8 @@ class XRootDCache:
         """Get LFN"""
         currdate = self.currdatetime
         currLFN = '%s/%s/%s/%s/%s-cache-test-%s' % (self.params['XRD_PATH'],currdate.year,
-                                                    currdate.month, currdate.day,
-                                                    currdate.hour, self.params['XRD_UNIQ_NAME'])
+                                                    currdate.month, currdate.day, currdate.hour,
+                                                    self.params['XRD_UNIQ_NAME'].replace('.', '-').replace(':', '_'))
         if 'cache' in self.params['XRD_MODES']:
             currLFN = '%s/%s/%s/%s/%s-cache-test' % (self.params['XRD_PATH'], currdate.year,
                                                         currdate.month, currdate.day,
@@ -112,7 +112,8 @@ class XRootDCache:
 
     def _writeFile(self, protocol, hostname):
         """Write File to XRootD"""
-        cmd = f"timeout 30 gfal-copy -p -f {self.workdir}/xrd-cache-test {protocol}://{hostname}/{self.lfn}-{hostname}"
+        uniqname = hostname.replace('.', '-').replace(':', '_')
+        cmd = f"timeout 30 gfal-copy -p -f {self.workdir}/xrd-cache-test {protocol}://{hostname}/{self.lfn}-{uniqname}"
         _, exitCode, runtime = self._executeCmd(cmd)
         self.gauge.labels(**self._getLabels(hostname, "write", protocol)).set(exitCode)
         self.runtimeGauge.labels(**self._getLabels(hostname, "write", protocol)).set(runtime)
@@ -162,9 +163,18 @@ class XRootDCache:
             else:
                 self.logger.debug(f"Skipping line: {line}")
                 continue
-            if 'write' in self.params['XRD_MODES'] and self.params['XRD_UNIQ_WRITE']:
-                for protocol in self.params['XRD_PROTOCOLS']:
-                    self._writeFile(protocol, host)
+            if self.params['XRD_UNIQ_WRITE']:
+                if 'write' in self.params['XRD_MODES']:
+                    for protocol in self.params['XRD_PROTOCOLS']:
+                        self._writeFile(protocol, host)
+                if 'read' in self.params['XRD_MODES']:
+                    for protocol in self.params['XRD_PROTOCOLS']:
+                        uniqname = host.replace('.', '-').replace(':', '_')
+                        cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn}-{uniqname} /dev/null"
+                        _, exitCode, runtime = self._executeCmd(cmd)
+                        self.gauge.labels(**self._getLabels(host, "read", protocol)).set(exitCode)
+                        self.runtimeGauge.labels(**self._getLabels(host, "read", protocol)).set(runtime)
+                continue
             if 'read' in self.params['XRD_MODES']:
                 for protocol in self.params['XRD_PROTOCOLS']:
                     cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn} /dev/null"
