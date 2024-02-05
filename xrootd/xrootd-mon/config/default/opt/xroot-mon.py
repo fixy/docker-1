@@ -163,25 +163,34 @@ class XRootDCache:
             else:
                 self.logger.debug(f"Skipping line: {line}")
                 continue
+            uniqname = host.replace('.', '-').replace(':', '_')
+            # These are nodes who have separated storage; (no shared FS)
             if self.params['XRD_UNIQ_WRITE']:
                 if 'write' in self.params['XRD_MODES']:
                     for protocol in self.params['XRD_PROTOCOLS']:
                         self._writeFile(protocol, host)
                 if 'read' in self.params['XRD_MODES']:
                     for protocol in self.params['XRD_PROTOCOLS']:
-                        uniqname = host.replace('.', '-').replace(':', '_')
                         cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn}-{uniqname} /dev/null"
                         _, exitCode, runtime = self._executeCmd(cmd)
                         self.gauge.labels(**self._getLabels(host, "read", protocol)).set(exitCode)
                         self.runtimeGauge.labels(**self._getLabels(host, "read", protocol)).set(runtime)
                 continue
-            if 'read' in self.params['XRD_MODES']:
+            # Read and write under redirector
+            if 'read' in self.params['XRD_MODES'] and 'write' in self.params['XRD_MODES']:
+                uniqname = self.params['XRD_ENDPOINT'].replace('.', '-').replace(':', '_')
                 for protocol in self.params['XRD_PROTOCOLS']:
-                    cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn} /dev/null"
+                    cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn}-{uniqname} /dev/null"
                     _, exitCode, runtime = self._executeCmd(cmd)
                     self.gauge.labels(**self._getLabels(host, "read", protocol)).set(exitCode)
                     self.runtimeGauge.labels(**self._getLabels(host, "read", protocol)).set(runtime)
-            if 'cache' in self.params['XRD_MODES']:
+            elif 'read' in self.params['XRD_MODES'] and 'write' not in self.params['XRD_MODES']:
+                for protocol in self.params['XRD_PROTOCOLS']:
+                    cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn} {self.workdir}/xrd-cache-test"
+                    _, exitCode, runtime = self._executeCmd(cmd)
+                    self.gauge.labels(**self._getLabels(host, "cache", protocol)).set(exitCode)
+                    self.runtimeGauge.labels(**self._getLabels(host, "cache", protocol)).set(runtime)
+            elif 'cache' in self.params['XRD_MODES']:
                 for protocol in self.params['XRD_PROTOCOLS']:
                     cmd = f"timeout 30 gfal-copy -f {protocol}://{host}/{self.lfn} {self.workdir}/xrd-cache-test"
                     _, exitCode, runtime = self._executeCmd(cmd)
