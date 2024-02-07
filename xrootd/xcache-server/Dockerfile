@@ -1,8 +1,10 @@
-FROM opensciencegrid/software-base:23-al8-release
+ARG RELEASE=latest
+FROM cmscaltech/base_image:$RELEASE
 # NOTES
 # 2022 Mar 10th - Disable osg-upcoming, as it brings 5.x release with TLS.
 #                 We are seeing a lot of TLS issue reading from Nebraska and Florida
 # 2023 Dec 15th - Move to OSG 23 AlmaLinux 8 Release
+# 2024 Feb 7th - Move to cmscaltech/base_image (which is based on OSG Image. See base_image repo)
 
 ARG UNAME=xrootd
 ARG UID=2010
