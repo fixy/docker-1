@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Check user and group file and create users and groups as needed"""
+"""Check user and group file and create users and groups as needed
+Requires environment variables:
+USER_MAP_FILE - location of yaml file with groups and users
+VOMS_MAP_LOCATION - location where to store voms mapfile
+GRID_MAP_LOCATION - location where to store grid mapfile
+"""
 
 import sys
 import os.path
@@ -8,49 +13,10 @@ import pwd
 import grp
 import datetime
 import subprocess
+import time
+
 import yaml
 
-# Content of usergroup file under /etc/usergroups/user-group
-#groups:
-#  gpuusers:
-#    name: 'gpuusers'
-#    gid: 4444
-#  uerj:
-#    name: 'uerj'
-#    gid: 4999
-#  docker:
-#    name: 'docker'
-#    gid: 5555
-#  allcit:
-#    name: 'allcit'
-#    gid: 6666
-#  sdntestbed:
-#    name: 'sdntestbed'
-#    gid: 7777
-#  qnet:
-#    name: 'qnet'
-#    gid: 8888
-#  btl:
-#    name: 'btl'
-#    gid: 9999
-#users:
-#  jbalcas:
-#    username: jbalcas
-#    full_name: Justas Balcas
-#    email: jbalcas@caltech.edu
-#    id: 3000
-#    expiry: '2024-07-01'
-#    dn:
-#      - '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=jbalcas/CN=751133/CN=Justas Balcas'
-#    groups:
-#      - allcit
-#      - cms
-#      - gpuusers
-#      - sdntestbed
-
-# Load file and check that users and groups are defined
-# if not, create user and add user to group
-# Also create grid-mapfile and voms-mapfile and add all users/groups as needed
 def runCmd(command):
     """Run command and print output"""
     process = subprocess.Popen(command,stdout=subprocess.PIPE, shell=True)
@@ -65,6 +31,50 @@ def runCmd(command):
     if exitCode != 0:
         print(f"Error while executing command: {command}")
         sys.exit(1)
+
+
+def _moveVomsFile(filename, data):
+    """Write data to file"""
+    with open(f"{filename}.tmp", "w", encoding='utf-8') as fd:
+        for key, val in data.items():
+            fd.write(f'"{key}" {val}\n')
+    # Move to final location only if file is different
+    olddata, newdata = None, None
+    if os.path.isfile(filename):
+        with open(filename, "r", encoding='utf-8') as fd:
+            olddata = fd.read()
+    with open(f"{filename}.tmp", "r", encoding='utf-8') as fd:
+        newdata = fd.read()
+    if not os.path.isfile(filename) or olddata != newdata:
+        os.rename(f"{filename}.tmp", filename)
+
+def createVomsGridMap(users):
+    """Create voms/grid mapfile and put in location defined by environment"""
+    vomslocation = os.environ.get('VOMS_MAP_LOCATION', None)
+    gridlocation = os.environ.get('GRID_MAP_LOCATION', None)
+    if not vomslocation and not gridlocation:
+        print("VOMS_MAP_LOCATION and GRID_MAP_LOCATION not defined. Will not create voms/grid mapfile")
+        return
+    allvoms = {}
+    allgrid = {}
+    for user, vals in users.items():
+        if 'voms' in vals:
+            for voms in vals['voms']:
+                if voms not in allvoms:
+                    allvoms[voms] = vals['username']
+                else:
+                    print('WARNING. VOMS already exists for {voms}. Dup entry: {vals}. Will not overwrite')
+        if 'dn' in vals:
+            for dn in vals['dn']:
+                if dn not in allgrid:
+                    allgrid[dn] = vals['username']
+                else:
+                    print('WARNING. DN already exists for {dn}. Dup entry: {vals}. Will not overwrite')
+    # Open a temporary file, write all voms and then move to final location
+    if vomslocation:
+        _moveVomsFile(vomslocation, allvoms)
+    if gridlocation:
+        _moveVomsFile(gridlocation, allgrid)
 
 def groupCheck(group, vals):
     """Check if group exists, if not, create it"""
@@ -138,10 +148,11 @@ def userCheck(username, vals):
 
 def run():
     """Main run"""
-    if not os.path.isfile("/etc/usergroups/user-group"):
-        print("File /etc/usergroups/user-group not found")
+    allusersfile = os.environ.get('USER_MAP_FILE', None)
+    if not os.path.isfile(allusersfile):
+        print(f"File {allusersfile} not found")
         return
-    with open("/etc/usergroups/user-group", "r", encoding='utf-8') as fd:
+    with open(allusersfile, "r", encoding='utf-8') as fd:
         data = yaml.load(fd)
     if "groups" in data:
         for key, vals in data["groups"].items():
@@ -149,6 +160,11 @@ def run():
     if "users" in data:
         for key, vals in data["users"].items():
             userCheck(key, vals)
+    createVomsGridMap(data["users"])
+
 
 if __name__ == "__main__":
-    run()
+    while True:
+        run()
+        print("Sleeping for 3600 seconds")
+        time.sleep(3600)
